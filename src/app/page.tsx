@@ -12,7 +12,8 @@ export default function IndexPage() {
     <>
       <div className="flex flex-col min-h-screen bg-slate-950">
         <main className="flex-grow bg-slate-950">
-          <div className="h-screen flex items-center justify-center">
+          {/* Hero Section */}
+          <div className="min-h-screen flex items-center justify-center px-4">
             <HeroSection />
           </div>
 
@@ -21,37 +22,43 @@ export default function IndexPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className=" text-center"
+            className="text-center px-4"
           >
-            <h2 className="text-lg md:text-4xl text-center text-white dark:text-white">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl text-center text-white">
               Skills & Technologies
             </h2>
             <SkillsSection />
           </motion.div>
 
+          {/* Timeline Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
+            className="overflow-hidden px-4"
           >
-            <div className="relative w-full mt-8 overflow-hidden rounded-lg">
+            <div className="relative max-w-7xl mx-auto mt-4 sm:mt-6 md:mt-8 lg:mt-10">
               <TimelineDemo />
             </div>
           </motion.div>
 
+          {/* Projects Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
+            className="px-4"
           >
-            <h2 className="text-lg md:text-4xl mb-4 text-center text-white dark:text-white">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl text-center text-white">
               Projects
             </h2>
-            <div className="relative w-full mt-10 overflow-hidden">
+            <div className="relative max-w-7xl mx-auto mt-4 sm:mt-6 md:mt-10">
               <ProjectsSection />
             </div>
           </motion.div>
         </main>
+
+        {/* Footer */}
         <Footer />
       </div>
     </>

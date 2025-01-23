@@ -3,7 +3,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import { LampContainer } from "@/components/ui/lamp";
 import { useQuery } from "@tanstack/react-query";
-// import { Github, Linkedin, ExternalLink } from "lucide-react";
 
 interface AboutData {
   name: string;
@@ -28,36 +27,38 @@ export function HeroSection() {
 
   return (
     <LampContainer>
-      <div className="space y-4 max-w-4xl mx-auto px-4">
+      <div className="relative flex flex-col justify-center items-center h-56 sm:px-6 md:px-8 text-center">
+        {/* Main Heading */}
         <motion.h1
-          initial={{ opacity: 0.5, y: -70 }}
+          initial={{ opacity: 0.5, y: -20 }} // Reduced from -70 to -20
           whileInView={{ opacity: 1, y: 0 }}
           transition={{
             delay: 0.3,
             duration: 0.8,
             ease: "easeInOut",
           }}
-          className="mt-8 text-white/80 py-4 text-center text-5xl font-bold tracking-tight md:text-7xl"
+          className="mt-20 sm:mt-32 text-white/80 py-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight break-words leading-tight"
         >
           {about?.name || "Loading..."}
         </motion.h1>
 
+        {/* Title & Description */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="space-y-8 text-center"
+          className="space-y-24 mt-6"
         >
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-200/80 to-slate-400 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-200/80 to-slate-400 bg-clip-text text-transparent">
             {about?.title}
           </h2>
 
-          <div className="space-y-12">
-            <p className="text-xl md:text-2xl font-medium text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          <div className="space-y-6 sm:space-y-8">
+            <p className="text-lg sm:text-xl md:text-2xl font-medium text-slate-300 max-w-2xl mx-auto leading-relaxed">
               {about?.brief}
             </p>
 
-            <p className="max-w-3xl mx-auto text-lg text-slate-400/90 leading-relaxed">
+            <p className="max-w-3xl mx-auto text-base sm:text-lg text-slate-400/90 leading-relaxed">
               {about?.details}
             </p>
           </div>

@@ -33,36 +33,25 @@ interface Social {
 }
 
 const iconMap = {
-  // Development
   github: GithubIcon,
   gitlab: GitlabIcon,
   codepen: CodepenIcon,
   stackoverflow: HashIcon,
-
-  // Professional
   linkedin: LinkedinIcon,
   portfolio: FileCodeIcon,
   website: GlobeIcon,
   blog: NewspaperIcon,
-
-  // Communication
   mail: MailIcon,
   discord: MessagesSquareIcon,
   rss: RssIcon,
-
-  // Social Media
   twitter: TwitterIcon,
   instagram: InstagramIcon,
   youtube: YoutubeIcon,
   facebook: FacebookIcon,
   twitch: TwitchIcon,
-
-  // Design/Creative
   behance: PaintbrushIcon,
   dribbble: PaletteIcon,
   medium: BookOpenIcon,
-
-  // Generic
   link: LinkIcon,
   share: ShareIcon,
 };
@@ -75,17 +64,30 @@ async function fetchSocials() {
   return result;
 }
 
+async function fetchCV() {
+  const response = await fetch(
+    "https://kyu37vb9.api.sanity.io/v2025-01-20/data/query/production?query=*%5B_type+%3D%3D+%22resume%22%5D{ 'cvUrl': cv.asset->url }"
+  );
+  const { result } = await response.json();
+  return result.length > 0 ? result[0].cvUrl : null;
+}
+
 export function Footer() {
   const { data: socials = [] } = useQuery<Social[]>({
     queryKey: ["socials"],
     queryFn: fetchSocials,
   });
 
+  const { data: cvUrl } = useQuery<string | null>({
+    queryKey: ["cv"],
+    queryFn: fetchCV,
+  });
+
   const mailSocial = socials.find((social) => social.icon === "mail");
   const otherSocials = socials.filter((social) => social.icon !== "mail");
 
   return (
-    <footer className="mt-24 bg-slate-950 ">
+    <footer className="mt-24 bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="space-y-4">
@@ -93,7 +95,8 @@ export function Footer() {
               Let&apos;s Connect
             </h3>
             <p className="text-slate-400 max-w-md">
-              Feel free to reach out for collaborations or just a friendly hello
+              Feel free to reach out for collaborations or just a friendly
+              hello.
             </p>
             {mailSocial && (
               <a
@@ -102,6 +105,20 @@ export function Footer() {
               >
                 <MailIcon className="w-5 h-5" />
                 <span>{mailSocial.link.replace("mailto:", "")}</span>
+                <LinkIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </a>
+            )}
+
+            {/* CV Open in New Tab */}
+            {cvUrl && (
+              <a
+                href={cvUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                <FileCodeIcon className="w-5 h-5" />
+                <span>Check Out My Resume</span>
                 <LinkIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </a>
             )}
@@ -119,7 +136,7 @@ export function Footer() {
                   className="group flex items-center gap-2 px-6 py-3 rounded-full bg-slate-800/80 text-slate-200 hover:bg-slate-700 transition-all duration-300 hover:scale-105"
                 >
                   {Icon && <Icon className="w-5 h-5" />}
-                  <span className="font-medium">{social.name}</span>
+                  <span className="font-medium capitalize">{social.name}</span>
                   <LinkIcon className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                 </a>
               );

@@ -22,44 +22,20 @@ function getImageUrl(ref: string): string {
     .replace("-png", ".png")}`;
 }
 
-// Skill categories and their associated skills
+// Skill categories
 const skillCategories = {
-  frontend: [
-    "react",
-    "next js",
-    "typescript",
-    "javascript",
-    "tailwind css",
-    "html",
-    "css",
-    "vue",
-    "angular",
-  ],
+  frontend: ["react", "next js", "typescript", "javascript", "tailwind css"],
   backend: [
-    "node",
+    "node js",
     "python",
     "django",
     "express",
     "fastapi",
-    "nest",
-    "java",
-    "spring",
     "flask",
     "php",
-    "node js",
   ],
-  database: [
-    "postgresql",
-    "mongodb",
-    "mysql",
-    "redis",
-    "drizzle",
-    "prisma",
-    "supabase",
-    "sql",
-    "sequelize",
-  ],
-  tools: ["git", "github", "docker", "kubernetes", "aws", "vercel", "firebase"],
+  database: ["postgresql", "mongodb", "mysql", "redis", "drizzle", "sequelize"],
+  tools: ["git", "github", "docker", "aws", "vercel", "firebase"],
 };
 
 async function fetchSkills(): Promise<Skill[]> {
@@ -76,31 +52,18 @@ export function SkillsSection() {
     queryFn: fetchSkills,
   });
 
-  const categorizeSkills = (skills: Skill[]) => {
-    const categorized = {
-      frontend: [] as Skill[],
-      backend: [] as Skill[],
-      database: [] as Skill[],
-      tools: [] as Skill[],
-    };
-
-    skills.forEach((skill) => {
-      const name = skill.name.toLowerCase();
-      if (skillCategories.frontend.includes(name)) {
-        categorized.frontend.push(skill);
-      } else if (skillCategories.backend.includes(name)) {
-        categorized.backend.push(skill);
-      } else if (skillCategories.database.includes(name)) {
-        categorized.database.push(skill);
-      } else {
-        categorized.tools.push(skill);
-      }
-    });
-
-    return categorized;
-  };
-
-  const categorizedSkills = categorizeSkills(skills);
+  // Categorize skills
+  const categorizedSkills = Object.keys(skillCategories).reduce(
+    (acc, key) => {
+      acc[key] = skills.filter((skill) =>
+        skillCategories[key as keyof typeof skillCategories].includes(
+          skill.name.toLowerCase()
+        )
+      );
+      return acc;
+    },
+    {} as Record<string, Skill[]>
+  );
 
   const categoryTitles = {
     frontend: "Frontend Development",
@@ -110,43 +73,58 @@ export function SkillsSection() {
   };
 
   return (
-    <div className="w-full h-screen pt-10">
-      <div className="space-y-16">
-        {Object.entries(categoryTitles).map(
-          ([category, title], categoryIndex) => (
+    <div className="w-full min-h-screen py-10 px-4 md:px-10 lg:px-16">
+      <div className="max-w-6xl mx-auto space-y-16">
+        {Object.entries(categoryTitles).map(([category, title], index) => (
+          <motion.div
+            key={category}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.2 }}
+            className="space-y-6"
+          >
+            <h3 className=" sm:text-xl md:text-xl lg:text-2xl text-slate-400 text-center">
+              {title}
+            </h3>
+
+            {/* Skills Grid */}
             <motion.div
-              key={category}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: categoryIndex * 0.2 }}
-              className="space-y-0"
+              initial="hidden"
+              whileInView="visible"
+              variants={{
+                visible: {
+                  transition: { staggerChildren: 0.15 },
+                },
+              }}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-center"
             >
-              <h3 className="text-xl font-bold text-slate-200 mb-3">{title}</h3>
-              <div className="flex items-center justify-center gap-6">
-                {categorizedSkills[
-                  category as keyof typeof categorizedSkills
-                ].map((skill, index) => (
-                  <motion.div
-                    key={skill._id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="group relative w-36 flex flex-col items-center p-4 bg-slate-600 hover:bg-slate-800/80 transition-all duration-300 [border-radius:60%_40%_30%_70%/60%_30%_70%_40%]"
-                  >
-                    <div className="relative w-16 h-16 mb-1">
-                      <Image
-                        src={getImageUrl(skill.image.asset._ref)}
-                        alt={skill.name}
-                        fill
-                        className="object-contain filter brightness-90 group-hover:brightness-100 transition-all"
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              {categorizedSkills[category]?.map((skill) => (
+                <motion.div
+                  key={skill._id}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.8 },
+                    visible: { opacity: 1, scale: 1 },
+                  }}
+                  whileHover={{
+                    scale: 1.1,
+                    rotate: 3,
+                    transition: { duration: 0.3 },
+                  }}
+                  className="group relative flex flex-col items-center p-4 bg-slate-800/50 border border-slate-700 shadow-lg backdrop-blur-lg rounded-2xl transition-all duration-300 hover:shadow-cyan-500/30"
+                >
+                  <div className="relative w-16 h-16 mb-2">
+                    <Image
+                      src={getImageUrl(skill.image.asset._ref)}
+                      alt={skill.name}
+                      fill
+                      className="object-contain filter brightness-90 group-hover:brightness-110 transition-all"
+                    />
+                  </div>
+                </motion.div>
+              ))}
             </motion.div>
-          )
-        )}
+          </motion.div>
+        ))}
       </div>
     </div>
   );
