@@ -23,10 +23,10 @@ const SpotlightCursor: React.FC<SpotlightCursorProps> = ({
 }) => {
   // Map the properties to match what useSpotlightEffect expects
   const spotlightConfig = {
-    spotlightSize: config.radius ?? 200, // Mapping radius -> spotlightSize
-    spotlightIntensity: config.brightness ?? 0.15, // Mapping brightness -> spotlightIntensity
-    glowColor: config.color ? config.color.replace("#", "") : "255, 255, 255", // Mapping color -> glowColor
-    fadeSpeed: config.smoothing ?? 0.1, // Mapping smoothing -> fadeSpeed
+    spotlightSize: config.radius ?? 500, // Mapping radius -> spotlightSize
+    spotlightIntensity: config.brightness ?? 1, // Mapping brightness -> spotlightIntensity
+    glowColor: config.color ? config.color.replace("#", "") : "20, 40, 70", // Mapping color -> glowColor
+    fadeSpeed: config.smoothing ?? 0.8, // Mapping smoothing -> fadeSpeed
   };
 
   const canvasRef = useSpotlightEffect(spotlightConfig);
