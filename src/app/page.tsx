@@ -6,12 +6,16 @@ import { TimelineDemo } from "@/components/ui/realTimeLine";
 import { ProjectsSection } from "@/components/ui/projects";
 import { Footer } from "@/components/ui/footer";
 import { SkillsSection } from "@/components/ui/skills";
+import SpotlightCursor from "@/components/ui/spotLightCursor";
 
 export default function IndexPage() {
   return (
     <>
       <div className="flex flex-col min-h-screen bg-slate-950">
         <main className="flex-grow bg-slate-950">
+          {/* Spotlight Cursor Effect */}
+          <SpotlightCursor />
+
           {/* Hero Section */}
           <div className="min-h-screen flex items-center justify-center px-4">
             <HeroSection />

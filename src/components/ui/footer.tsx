@@ -124,7 +124,7 @@ export function Footer() {
             )}
           </div>
 
-          <div className="flex justify-center md:justify-end gap-6">
+          <div className="flex flex-wrap justify-center md:justify-end gap-6">
             {otherSocials.map((social) => {
               const Icon = iconMap[social.icon as keyof typeof iconMap];
               return (
@@ -133,7 +133,7 @@ export function Footer() {
                   href={social.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-2 px-6 py-3 rounded-full bg-slate-800/80 text-slate-200 hover:bg-slate-700 transition-all duration-300 hover:scale-105"
+                  className="group flex flex-wrap items-center gap-2 px-6 py-3 rounded-full bg-slate-800/80 text-slate-200 hover:bg-slate-700 transition-all duration-300 hover:scale-105"
                 >
                   {Icon && <Icon className="w-5 h-5" />}
                   <span className="font-medium capitalize">{social.name}</span>
