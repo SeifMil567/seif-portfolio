@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-ignore
 "use client";
 import { useEffect, useRef, useState } from "react";
 
@@ -16,7 +17,7 @@ const useSpotlightEffect = (config = {}) => {
   const spotlightPos = useRef({ x: 0, y: 0 });
   const targetPos = useRef({ x: 0, y: 0 });
   const animationFrame = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
+  // const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,11 +35,11 @@ const useSpotlightEffect = (config = {}) => {
 
     const handleMouseMove = (e) => {
       targetPos.current = { x: e.clientX, y: e.clientY };
-      setIsHovered(true);
+      // setIsHovered(true);
     };
 
     const handleMouseLeave = () => {
-      setIsHovered(false);
+      // setIsHovered(false);
     };
 
     const render = () => {
