@@ -1,13 +1,14 @@
 "use client";
+
 import { HTMLAttributes } from "react";
 import useSpotlightEffect from "@/hooks/useSpotlightEffect";
 
 // Define an interface for the spotlight configuration
 interface SpotlightConfig {
-  radius?: number;
-  brightness?: number;
-  color?: string;
-  smoothing?: number;
+  radius?: number; // Maps to spotlightSize
+  brightness?: number; // Maps to spotlightIntensity
+  color?: string; // Maps to glowColor
+  smoothing?: number; // Maps to fadeSpeed
 }
 
 // Combine props with potential HTML canvas attributes
@@ -15,18 +16,17 @@ interface SpotlightCursorProps extends HTMLAttributes<HTMLCanvasElement> {
   config?: SpotlightConfig;
 }
 
-const SpotlightCursor = ({
+const SpotlightCursor: React.FC<SpotlightCursorProps> = ({
   config = {},
-  className,
+  className = "",
   ...rest
-}: SpotlightCursorProps) => {
-  // Provide default configuration if not specified
+}) => {
+  // Map the properties to match what useSpotlightEffect expects
   const spotlightConfig = {
-    radius: 200,
-    brightness: 0.15,
-    color: "#ffffff",
-    smoothing: 0.1,
-    ...config,
+    spotlightSize: config.radius ?? 200, // Mapping radius -> spotlightSize
+    spotlightIntensity: config.brightness ?? 0.15, // Mapping brightness -> spotlightIntensity
+    glowColor: config.color ? config.color.replace("#", "") : "255, 255, 255", // Mapping color -> glowColor
+    fadeSpeed: config.smoothing ?? 0.1, // Mapping smoothing -> fadeSpeed
   };
 
   const canvasRef = useSpotlightEffect(spotlightConfig);
