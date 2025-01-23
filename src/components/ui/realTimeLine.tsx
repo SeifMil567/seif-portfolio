@@ -4,11 +4,6 @@ import { Timeline } from "@/components/ui/timeline";
 import { ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
-interface TimelineItem {
-  title: string;
-  content: React.ReactNode;
-}
-
 interface ExperienceItem {
   position: string;
   details: string;

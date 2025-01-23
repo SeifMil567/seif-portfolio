@@ -21,7 +21,7 @@ async function fetchAbout() {
 }
 
 export function HeroSection() {
-  const { data: about, isLoading } = useQuery<AboutData>({
+  const { data: about } = useQuery<AboutData>({
     queryKey: ["about"],
     queryFn: fetchAbout,
   });

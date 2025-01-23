@@ -71,7 +71,7 @@ async function fetchSkills(): Promise<Skill[]> {
 }
 
 export function SkillsSection() {
-  const { data: skills = [], isLoading } = useQuery({
+  const { data: skills = [] } = useQuery({
     queryKey: ["skills"],
     queryFn: fetchSkills,
   });

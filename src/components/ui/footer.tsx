@@ -89,7 +89,9 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-slate-200">Let's Connect</h3>
+            <h3 className="text-2xl font-bold text-slate-200">
+              Let&apos;s Connect
+            </h3>
             <p className="text-slate-400 max-w-md">
               Feel free to reach out for collaborations or just a friendly hello
             </p>
