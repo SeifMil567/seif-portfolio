@@ -1,125 +1,109 @@
 "use client";
-import React from "react";
-import { motion } from "framer-motion";
+
+import React, { useMemo } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
+import {
+  fetchSkills,
+  getSkillImageUrl,
+  queryKeys,
+  type Skill,
+} from "@/lib/sanity/queries";
+import { SkillsSkeleton } from "@/components/ui/skeleton";
 
-interface Skill {
-  _id: string;
-  name: string;
-  image: {
-    asset: {
-      _ref: string;
-    };
-  };
-}
-
-// Helper function to get Sanity image URL
-function getImageUrl(ref: string): string {
-  return `https://cdn.sanity.io/images/kyu37vb9/production/${ref
-    .replace("image-", "")
-    .replace("-svg", ".svg")
-    .replace("-png", ".png")}`;
-}
-
-// Skill categories
-const skillCategories = {
-  frontend: ["react", "next js", "typescript", "javascript", "tailwind css"],
-  backend: [
-    "node js",
-    "python",
-    "django",
-    "express",
-    "fastapi",
-    "flask",
-    "php",
-  ],
-  database: ["postgresql", "mongodb", "mysql", "redis", "drizzle", "sequelize"],
-  tools: ["git", "github", "docker", "aws", "vercel", "firebase"],
+const skillCategorySets = {
+  frontend: new Set(["react", "next js", "typescript", "javascript", "tailwind css"]),
+  backend: new Set(["node js", "python", "django", "express", "fastapi", "flask", "php"]),
+  database: new Set(["postgresql", "mongodb", "mysql", "redis", "drizzle", "sequelize"]),
+  tools: new Set(["git", "github", "docker", "aws", "vercel", "firebase"]),
 };
 
-async function fetchSkills(): Promise<Skill[]> {
-  const response = await fetch(
-    "https://kyu37vb9.api.sanity.io/v2025-01-20/data/query/production?query=*%5B_type+%3D%3D+%22skill%22%5D"
-  );
-  const { result } = await response.json();
-  return result;
-}
+const categoryTitles = {
+  frontend: "Frontend Development",
+  backend: "Backend Development",
+  database: "Database & ORM",
+  tools: "Tools & Platforms",
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+};
+const cardHover = { scale: 1.05, transition: { duration: 0.2 } };
+const staggerVariants = { visible: { transition: { staggerChildren: 0.1 } } };
 
 export function SkillsSection() {
-  const { data: skills = [] } = useQuery({
-    queryKey: ["skills"],
+  const prefersReducedMotion = useReducedMotion();
+
+  const { data: skills = [], isLoading } = useQuery({
+    queryKey: queryKeys.skills,
     queryFn: fetchSkills,
   });
 
-  // Categorize skills
-  const categorizedSkills = Object.keys(skillCategories).reduce(
-    (acc, key) => {
-      acc[key] = skills.filter((skill) =>
-        skillCategories[key as keyof typeof skillCategories].includes(
-          skill.name.toLowerCase()
-        )
-      );
-      return acc;
-    },
-    {} as Record<string, Skill[]>
+  const categorizedSkills = useMemo(
+    () =>
+      Object.keys(skillCategorySets).reduce(
+        (acc, key) => {
+          acc[key] = skills.filter((skill) =>
+            skillCategorySets[key as keyof typeof skillCategorySets].has(
+              skill.name.toLowerCase()
+            )
+          );
+          return acc;
+        },
+        {} as Record<string, Skill[]>
+      ),
+    [skills]
   );
 
-  const categoryTitles = {
-    frontend: "Frontend Development",
-    backend: "Backend Development",
-    database: "Database & ORM",
-    tools: "Tools & Platforms",
-  };
+  if (isLoading) {
+    return <SkillsSkeleton />;
+  }
 
   return (
-    <div className="w-full min-h-screen py-10 px-4 md:px-10 lg:px-16">
-      <div className="max-w-6xl mx-auto space-y-16">
+    <div className="w-full py-8">
+      <div className="max-w-6xl mx-auto space-y-12">
         {Object.entries(categoryTitles).map(([category, title], index) => (
           <motion.div
             key={category}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.2 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+            whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.15 }}
             className="space-y-6"
           >
-            <h3 className=" sm:text-xl md:text-xl lg:text-2xl text-slate-400 text-center">
+            <h3 className="text-lg sm:text-xl lg:text-2xl text-slate-400 text-center font-medium">
               {title}
             </h3>
 
-            {/* Skills Grid */}
             <motion.div
               initial="hidden"
               whileInView="visible"
-              variants={{
-                visible: {
-                  transition: { staggerChildren: 0.15 },
-                },
-              }}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-center"
+              viewport={{ once: true }}
+              variants={prefersReducedMotion ? undefined : staggerVariants}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"
             >
               {categorizedSkills[category]?.map((skill) => (
                 <motion.div
                   key={skill._id}
-                  variants={{
-                    hidden: { opacity: 0, scale: 0.8 },
-                    visible: { opacity: 1, scale: 1 },
-                  }}
-                  whileHover={{
-                    scale: 1.1,
-                    rotate: 3,
-                    transition: { duration: 0.3 },
-                  }}
-                  className="group relative flex flex-col items-center p-4 bg-slate-800/50 border border-slate-700 shadow-lg backdrop-blur-lg rounded-2xl transition-all duration-300 hover:shadow-cyan-500/30"
+                  variants={prefersReducedMotion ? undefined : cardVariants}
+                  whileHover={prefersReducedMotion ? undefined : cardHover}
+                  className="group flex flex-col items-center gap-2 p-4 bg-slate-800/50 border border-slate-700 shadow-lg backdrop-blur-lg rounded-2xl transition-shadow duration-300 hover:shadow-cyan-500/20 hover:border-slate-600"
+                  aria-label={skill.name}
                 >
-                  <div className="relative w-16 h-16 mb-2">
+                  <div className="relative w-14 h-14 sm:w-16 sm:h-16">
                     <Image
-                      src={getImageUrl(skill.image.asset._ref)}
-                      alt={skill.name}
+                      src={getSkillImageUrl(skill)}
+                      alt=""
                       fill
                       className="object-contain filter brightness-90 group-hover:brightness-110 transition-all"
+                      sizes="64px"
                     />
                   </div>
+                  <span className="text-xs sm:text-sm text-slate-400 group-hover:text-slate-200 text-center font-medium transition-colors">
+                    {skill.name}
+                  </span>
                 </motion.div>
               ))}
             </motion.div>

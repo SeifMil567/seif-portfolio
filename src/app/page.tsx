@@ -1,70 +1,85 @@
 "use client";
+
 import React from "react";
-import { motion } from "framer-motion";
 import { HeroSection } from "@/components/ui/hero";
 import { TimelineDemo } from "@/components/ui/realTimeLine";
 import { ProjectsSection } from "@/components/ui/projects";
 import { Footer } from "@/components/ui/footer";
 import { SkillsSection } from "@/components/ui/skills";
+import { Navigation } from "@/components/ui/nav";
 import SpotlightCursor from "@/components/ui/spotLightCursor";
+import {
+  SectionReveal,
+  sectionHeadingClass,
+} from "@/components/ui/section-reveal";
 
 export default function IndexPage() {
   return (
-    <>
-      <div className="flex flex-col min-h-screen bg-slate-950">
-        <main className="flex-grow bg-slate-950">
-          {/* Spotlight Cursor Effect */}
-          <SpotlightCursor />
+    <div className="flex flex-col min-h-screen bg-slate-950 overflow-x-hidden">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-cyan-700 focus:text-white focus:rounded-md"
+      >
+        Skip to main content
+      </a>
 
-          {/* Hero Section */}
-          <div className="min-h-screen flex items-center justify-center px-4">
-            <HeroSection />
-          </div>
+      <Navigation />
+      <SpotlightCursor />
 
-          {/* Skills Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-center px-4"
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl text-center text-white">
+      <main id="main-content" className="flex-grow bg-slate-950">
+        <section
+          id="home"
+          aria-label="Introduction"
+          className="scroll-mt-20"
+        >
+          <HeroSection />
+        </section>
+
+        <section
+          id="skills"
+          aria-labelledby="skills-heading"
+          className="py-16 md:py-28 px-4 scroll-mt-16 sm:scroll-mt-20"
+        >
+          <SectionReveal className="max-w-7xl mx-auto">
+            <h2 id="skills-heading" className={sectionHeadingClass}>
               Skills & Technologies
             </h2>
             <SkillsSection />
-          </motion.div>
+          </SectionReveal>
+        </section>
 
-          {/* Timeline Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="overflow-hidden px-4"
-          >
-            <div className="relative max-w-7xl mx-auto mt-4 sm:mt-6 md:mt-8 lg:mt-10">
+        <section
+          id="experience"
+          aria-labelledby="experience-heading"
+          className="py-16 md:py-28 px-4 scroll-mt-16 sm:scroll-mt-20 overflow-hidden"
+        >
+          <SectionReveal className="max-w-7xl mx-auto">
+            <h2 id="experience-heading" className={sectionHeadingClass}>
+              Work Experience
+            </h2>
+            <div className="mt-8 sm:mt-12">
               <TimelineDemo />
             </div>
-          </motion.div>
+          </SectionReveal>
+        </section>
 
-          {/* Projects Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="px-4"
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl text-center text-white">
+        <section
+          id="projects"
+          aria-labelledby="projects-heading"
+          className="py-16 md:py-28 px-4 scroll-mt-16 sm:scroll-mt-20"
+        >
+          <SectionReveal delay={0.1} className="max-w-7xl mx-auto">
+            <h2 id="projects-heading" className={sectionHeadingClass}>
               Projects
             </h2>
-            <div className="relative max-w-7xl mx-auto mt-4 sm:mt-6 md:mt-10">
+            <div className="mt-8 sm:mt-12">
               <ProjectsSection />
             </div>
-          </motion.div>
-        </main>
+          </SectionReveal>
+        </section>
+      </main>
 
-        {/* Footer */}
-        <Footer />
-      </div>
-    </>
+      <Footer />
+    </div>
   );
 }

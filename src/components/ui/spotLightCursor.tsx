@@ -16,23 +16,31 @@ interface SpotlightCursorProps extends HTMLAttributes<HTMLCanvasElement> {
   config?: SpotlightConfig;
 }
 
+const DEFAULT_CONFIG: SpotlightConfig = {};
+
 const SpotlightCursor: React.FC<SpotlightCursorProps> = ({
-  config = {},
+  config = DEFAULT_CONFIG,
   className = "",
   ...rest
 }) => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
-  // Use matchMedia for accurate device detection
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    const mobileQuery = window.matchMedia("(max-width: 768px)");
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const update = () => {
+      setIsHidden(mobileQuery.matches || motionQuery.matches);
     };
 
-    checkMobile(); // Initial check
-    window.addEventListener("resize", checkMobile);
+    update();
+    mobileQuery.addEventListener("change", update);
+    motionQuery.addEventListener("change", update);
 
-    return () => window.removeEventListener("resize", checkMobile);
+    return () => {
+      mobileQuery.removeEventListener("change", update);
+      motionQuery.removeEventListener("change", update);
+    };
   }, []);
 
   // Map config properties correctly for useSpotlightEffect
@@ -51,8 +59,8 @@ const SpotlightCursor: React.FC<SpotlightCursorProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className={`fixed top-0 left-0 pointer-events-none z-[9999] w-full h-full transition-opacity duration-300 ${
-        isMobile ? "opacity-0 invisible" : "opacity-100 visible"
+      className={`fixed top-0 left-0 pointer-events-none z-40 w-full h-full transition-opacity duration-300 ${
+        isHidden ? "opacity-0 invisible" : "opacity-100 visible"
       } ${className}`}
       {...rest}
     />

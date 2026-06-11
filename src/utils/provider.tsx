@@ -15,7 +15,9 @@ function Provider({ children }: ProviderProps) {
     <>
       <QueryClientProvider client={client}>
         <ReactQueryStreamedHydration>{children}</ReactQueryStreamedHydration>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {process.env.NODE_ENV === "development" && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
       </QueryClientProvider>
     </>
   );

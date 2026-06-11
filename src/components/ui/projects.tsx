@@ -1,28 +1,21 @@
 "use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { BorderBeam } from "./border-beam";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { fetchProjects, queryKeys } from "@/lib/sanity/queries";
+import { ProjectsSkeleton } from "@/components/ui/skeleton";
 
-interface Project {
-  name: string;
-  details: string;
-  tech: string;
-  img: string; // Comma-separated image names
-  _id: string;
-}
-
-async function fetchProjects(): Promise<Project[]> {
-  const response = await fetch(
-    "https://kyu37vb9.api.sanity.io/v2025-01-20/data/query/production?query=*%5B_type+%3D%3D+%22project%22%5D"
-  );
-  const { result } = await response.json();
-  return result;
-}
-
-function ProjectImages({ images }: { images: string[] }) {
+function ProjectImages({
+  images,
+  projectName,
+}: {
+  images: string[];
+  projectName: string;
+}) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const nextImage = () => {
@@ -34,48 +27,51 @@ function ProjectImages({ images }: { images: string[] }) {
   };
 
   return (
-    <div className="relative w-full h-52 rounded-lg overflow-hidden group">
+    <div className="relative w-full h-44 sm:h-52 rounded-lg overflow-hidden group">
       <Image
-        src={`/images/${images[currentImageIndex]}.png`} // Adjust path as needed
-        alt="Project screenshot"
+        src={`/images/${images[currentImageIndex]}.png`}
+        alt={`${projectName} screenshot ${currentImageIndex + 1} of ${images.length}`}
         fill
         className="object-cover transition-transform duration-300 group-hover:scale-105"
+        sizes="(max-width: 768px) 100vw, 50vw"
       />
 
       {images.length > 1 && (
         <>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              previousImage();
-            }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-slate-900/80 text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+            type="button"
+            onClick={previousImage}
+            aria-label="Previous image"
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 text-slate-200 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
           </button>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              nextImage();
-            }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-slate-900/80 text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+            type="button"
+            onClick={nextImage}
+            aria-label="Next image"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 text-slate-200 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5" aria-hidden="true" />
           </button>
 
-          {/* Image indicators */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+          <div
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5"
+            role="tablist"
+            aria-label={`${projectName} images`}
+          >
             {images.map((_, index) => (
               <button
                 key={index}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentImageIndex(index);
-                }}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                type="button"
+                role="tab"
+                aria-selected={index === currentImageIndex}
+                aria-label={`Image ${index + 1}`}
+                onClick={() => setCurrentImageIndex(index)}
+                className={`w-2 h-2 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
                   index === currentImageIndex
                     ? "bg-slate-200"
-                    : "bg-slate-200/50"
+                    : "bg-slate-200/40"
                 }`}
               />
             ))}
@@ -87,64 +83,65 @@ function ProjectImages({ images }: { images: string[] }) {
 }
 
 export function ProjectsSection() {
+  const prefersReducedMotion = useReducedMotion();
+
   const { data: projects = [], isLoading } = useQuery({
-    queryKey: ["projects"],
+    queryKey: queryKeys.projects,
     queryFn: fetchProjects,
   });
 
   if (isLoading) {
-    return <div>Loading projects...</div>;
+    return <ProjectsSkeleton />;
   }
 
   return (
-    <div className="w-full px-8 py-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+    <div className="w-full py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
         {projects.map((project, index) => {
           const images = project.img.split(",").map((img) => img.trim());
 
           return (
-            <motion.div
+            <motion.article
               key={project._id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+              whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="group relative rounded-xl bg-slate-100p overflow-hidden"
+              className="group relative rounded-xl overflow-hidden"
             >
               <BorderBeam
                 size={400}
                 duration={20}
-                colorFrom="blue"
-                colorTo="purple"
+                colorFrom="#3b82f6"
+                colorTo="#a855f7"
                 delay={0.1}
               />
 
-              <div className="relative z-10 flex flex-col h-full bg-slate-800 rounded-lg p-6 transition-transform duration-300 group-hover:scale-[0.99]">
-                <ProjectImages images={images} />
+              <div className="relative z-10 flex flex-col h-full bg-slate-800 border border-slate-700/50 rounded-xl p-6 transition-colors duration-300 group-hover:border-slate-600">
+                <ProjectImages images={images} projectName={project.name} />
 
                 <div className="flex-1 space-y-4 mt-6">
                   <h3 className="text-xl font-bold text-slate-100">
                     {project.name}
                   </h3>
 
-                  <p className="text-lg text-slate-200 ">{project.details}</p>
+                  <p className="text-base text-slate-300 leading-relaxed">
+                    {project.details}
+                  </p>
 
-                  <div className="flex flex-wrap gap-2 pt-2 my-auto">
-                    {project.tech.split(",").map((tech, index) => (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {project.tech.split(",").map((tech, techIndex) => (
                       <span
-                        key={index}
-                        className="px-3 py-1 text-sm rounded-full bg-slate-700 text-slate-200 hover:bg-slate-700 transition-colors"
+                        key={techIndex}
+                        className="px-3 py-1 text-sm rounded-full bg-slate-700 text-slate-200"
                       >
                         {tech.trim()}
                       </span>
                     ))}
                   </div>
                 </div>
-
-                <div className="absolute right-4 bottom-4 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                  <ChevronRight className="w-5 h-5 text-slate-400" />
-                </div>
               </div>
-            </motion.div>
+            </motion.article>
           );
         })}
       </div>

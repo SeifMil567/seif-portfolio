@@ -1,26 +1,16 @@
 "use client";
+
 import React from "react";
 import { Timeline } from "@/components/ui/timeline";
 import { ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-
-interface ExperienceItem {
-  position: string;
-  details: string;
-  tech: string;
-  name: string;
-  start: string;
-  end?: string;
-  link: string;
-}
-
-async function fetchExperience() {
-  const response = await fetch(
-    "https://kyu37vb9.api.sanity.io/v2025-01-20/data/query/production?query=*%5B_type+%3D%3D+%22experience%22%5D"
-  );
-  const { result } = await response.json();
-  return result;
-}
+import {
+  fetchExperiences,
+  queryKeys,
+  sortExperiencesByStartDate,
+  type ExperienceItem,
+} from "@/lib/sanity/queries";
+import { TimelineSkeleton } from "@/components/ui/skeleton";
 
 export function TimelineDemo() {
   const {
@@ -28,29 +18,30 @@ export function TimelineDemo() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["experiences"],
-    queryFn: fetchExperience,
+    queryKey: queryKeys.experiences,
+    queryFn: fetchExperiences,
     select: (data: ExperienceItem[]) =>
-      data.map((item) => ({
+      sortExperiencesByStartDate(data).map((item) => ({
+        id: item._id,
         title: `${item.start}${item.end ? ` - ${item.end}` : ""}`,
         content: (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-neutral-200 dark:text-neutral-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h3 className="text-xl font-bold text-neutral-200">
                 {item.position}
               </h3>
               <a
                 href={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm font-semibold text-blue-500 hover:text-blue-600"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded-sm"
               >
                 {item.name}
-                <ExternalLink size={14} />
+                <ExternalLink size={14} aria-hidden="true" />
               </a>
             </div>
 
-            <p className="text-neutral-400 dark:text-neutral-200 text-lg">
+            <p className="text-neutral-400 text-base sm:text-lg leading-relaxed">
               {item.details}
             </p>
 
@@ -58,7 +49,7 @@ export function TimelineDemo() {
               {item.tech.split(",").map((tech, index) => (
                 <span
                   key={index}
-                  className="px-2 py-1 text-xs rounded-full bg-slate-700 text-slate-200 hover:bg-slate-700 transition-colors"
+                  className="px-2 py-1 text-xs rounded-full bg-slate-700 text-slate-200"
                 >
                   {tech.trim()}
                 </span>
@@ -70,18 +61,17 @@ export function TimelineDemo() {
   });
 
   if (isLoading) {
-    return (
-      <div className="w-full text-center text-neutral-600 dark:text-neutral-400">
-        Loading experience timeline...
-      </div>
-    );
+    return <TimelineSkeleton />;
   }
 
   if (error) {
     return (
-      <div className="w-full text-center text-red-600 dark:text-red-400">
+      <p
+        role="alert"
+        className="w-full text-center text-red-400 py-8"
+      >
         Error loading experience timeline. Please try again later.
-      </div>
+      </p>
     );
   }
 

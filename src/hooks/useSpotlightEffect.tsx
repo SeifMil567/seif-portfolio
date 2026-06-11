@@ -10,6 +10,10 @@ interface SpotlightConfig {
   pulseSpeed?: number;
 }
 
+function lerp(start: number, end: number, factor: number): number {
+  return start + (end - start) * factor;
+}
+
 const useSpotlightEffect = (config: SpotlightConfig = {}) => {
   const {
     spotlightSize = 700,
@@ -31,10 +35,6 @@ const useSpotlightEffect = (config: SpotlightConfig = {}) => {
       canvasRef.current.height = window.innerHeight;
     }
   }, []);
-
-  const lerp = (start: number, end: number, factor: number): number => {
-    return start + (end - start) * factor;
-  };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     targetPos.current = { x: e.clientX, y: e.clientY };
@@ -66,10 +66,6 @@ const useSpotlightEffect = (config: SpotlightConfig = {}) => {
       );
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Create dark overlay
-      ctx.fillStyle = "rgba(0, 0, 0, 0)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Calculate pulse effect
       const pulseScale =
@@ -149,6 +145,7 @@ const useSpotlightEffect = (config: SpotlightConfig = {}) => {
     glowColor,
     pulseSpeed,
     spotlightSize,
+    spotlightIntensity,
     resizeCanvas,
     handleMouseMove,
   ]);
